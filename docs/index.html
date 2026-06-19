@@ -5,22 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <title>ROSE: Benchmarking the Perception-to-Action Gap in Multimodal Models</title>
-  <meta name="description" content="ROSE is a controlled benchmark for evaluating whether multimodal models can preserve and rebind visual evidence into exact context-sensitive symbolic actions.">
-  <meta name="keywords" content="ROSE, multimodal models, visual reasoning, visual grounding, benchmark, perception-to-action">
-  <meta name="author" content="Anonymous Authors">
-
-  <!-- TODO: Replace the arXiv placeholder and author metadata after release. -->
+  <meta name="description" content="ROSE is a controlled benchmark for evaluating whether multimodal models can turn shared visual evidence into exact context-conditioned symbolic actions.">
+  <meta name="keywords" content="ROSE, multimodal models, MLLM, visual reasoning, visual grounding, perception-to-action, benchmark">
+  <meta name="author" content="Yihao Wang, Zijian He, Jie Ren, Keze Wang">
   <link rel="canonical" href="https://xbdxwyh.github.io/ROSE-v0.1/">
 
   <meta property="og:type" content="website">
   <meta property="og:title" content="ROSE: Benchmarking the Perception-to-Action Gap in Multimodal Models">
-  <meta property="og:description" content="A controlled benchmark for measuring whether multimodal models can convert fine-grained visual evidence into exact context-sensitive actions.">
+  <meta property="og:description" content="A controlled benchmark for measuring whether multimodal models can convert fine-grained visual evidence into exact context-conditioned actions.">
   <meta property="og:url" content="https://xbdxwyh.github.io/ROSE-v0.1/">
   <meta property="og:image" content="https://xbdxwyh.github.io/ROSE-v0.1/static/images/social_preview.png">
 
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="ROSE: Benchmarking the Perception-to-Action Gap">
-  <meta name="twitter:description" content="Can multimodal models preserve and rebind what they see into the right action?">
+  <meta name="twitter:description" content="Can multimodal models turn the same visual evidence into the exact action required by the current context?">
   <meta name="twitter:image" content="https://xbdxwyh.github.io/ROSE-v0.1/static/images/social_preview.png">
 
   <link rel="icon" type="image/svg+xml" href="static/images/favicon.svg">
@@ -33,7 +31,7 @@
   <main>
     <section class="hero">
       <div class="page-shell hero-inner">
-        <div class="release-kicker">ROSE v0.1 · Benchmark &amp; Diagnostic Toolkit</div>
+        <div class="release-kicker">ROSE v0.1 · arXiv:2606.19965 · Preprint</div>
 
         <h1 class="publication-title">
           ROSE: Benchmarking the Perception-to-Action Gap in Multimodal Models
@@ -43,24 +41,38 @@
           Reference-conditioned Oddity and Symbolic Execution
         </p>
 
-        <!-- TODO: Replace this block with the public author list and affiliations. -->
         <div class="publication-authors">
-          <span class="author-block">Anonymous Authors</span>
+          <span class="author-block">Yihao Wang<sup>1</sup></span>
+          <span class="author-separator">·</span>
+          <span class="author-block">Zijian He<sup>1</sup></span>
+          <span class="author-separator">·</span>
+          <span class="author-block">Jie Ren<sup>2</sup></span>
+          <span class="author-separator">·</span>
+          <span class="author-block">Keze Wang<sup>1,†</sup></span>
+        </div>
+        <div class="author-affiliations">
+          <span><sup>1</sup>Sun Yat-sen University</span>
+          <span><sup>2</sup>Shaanxi Normal University</span>
         </div>
         <div class="publication-venue">
-          Preprint, 2026
+          Preprint, June 2026 · <span class="corresponding-note"><sup>†</sup>Corresponding author: kezewang@gmail.com</span>
         </div>
 
         <div class="link-row" aria-label="Project resources">
-          <a class="resource-button pending" href="https://arxiv.org/abs/XXXX.XXXXX" target="_blank" rel="noopener">
+          <a class="resource-button" href="https://arxiv.org/abs/2606.19965" target="_blank" rel="noopener">
             <span class="icon"><i class="fa-solid fa-file-lines"></i></span>
             <span>Paper</span>
-            <span class="mini-tag">Soon</span>
+            <span class="mini-tag">arXiv</span>
+          </a>
+
+          <a class="resource-button" href="https://arxiv.org/pdf/2606.19965" target="_blank" rel="noopener">
+            <span class="icon"><i class="fa-solid fa-file-pdf"></i></span>
+            <span>PDF</span>
           </a>
 
           <a class="resource-button" href="https://github.com/xbdxwyh/ROSE-v0.1" target="_blank" rel="noopener">
             <span class="icon"><i class="fa-brands fa-github"></i></span>
-            <span>Code</span>
+            <span>Evaluation Code</span>
           </a>
 
           <a class="resource-button" href="https://huggingface.co/datasets/sysuwyh357/ROSE-v0.1" target="_blank" rel="noopener">
@@ -73,10 +85,6 @@
             <span>BibTeX</span>
           </a>
         </div>
-
-        <p class="release-note">
-          The dataset and paper links may remain private or provisional during release preparation.
-        </p>
       </div>
     </section>
 
@@ -86,14 +94,12 @@
           <img src="static/images/rose_overview.png" alt="Overview of the ROSE benchmark" loading="eager">
           <figcaption>
             <strong>ROSE fixes the visual scene while changing the task context.</strong>
-            A model must infer the majority reference and exception set, then convert the same evidence into different exact symbolic actions.
+            A model must infer the implicit majority reference, identify the exception cells, and produce different formal outputs under global, region-conditioned, and exclusion-based tasks.
           </figcaption>
         </figure>
 
         <p class="lead-statement">
-          Multimodal models can often <strong>recognize or count</strong> visual exceptions,
-          yet fail when the same evidence must be <strong>filtered, rebound, and executed</strong>
-          under region-specific action constraints.
+          Can a multimodal model turn the <strong>same visual evidence</strong> into the exact action required by the <strong>current task context</strong>?
         </p>
       </div>
     </section>
@@ -113,11 +119,11 @@
           </article>
           <article class="stat-card">
             <div class="stat-value">7,560</div>
-            <div class="stat-label">Coupled tasks</div>
+            <div class="stat-label">Task instances</div>
           </article>
           <article class="stat-card">
             <div class="stat-value">5</div>
-            <div class="stat-label">Visual sources</div>
+            <div class="stat-label">Fine-grained visual sources</div>
           </article>
           <article class="stat-card">
             <div class="stat-value">98.8%</div>
@@ -131,24 +137,24 @@
 
         <div class="highlight-list">
           <div class="highlight-item">
-            <span class="highlight-icon"><i class="fa-solid fa-link"></i></span>
+            <span class="highlight-icon"><i class="fa-solid fa-layer-group"></i></span>
             <div>
-              <h3>Scene-coupled evaluation</h3>
-              <p>Multiple counting and action tasks share the same underlying visual evidence.</p>
+              <h3>Coupled scene design</h3>
+              <p>Global counting, local counting, local clicking, visual-region clicking, and exclusion actions are derived from the same underlying scene.</p>
             </div>
           </div>
           <div class="highlight-item">
             <span class="highlight-icon"><i class="fa-solid fa-crosshairs"></i></span>
             <div>
-              <h3>Exact symbolic actions</h3>
-              <p>Predictions are automatically verified as counts, coordinate sets, or click-count submissions.</p>
+              <h3>Exact symbolic execution</h3>
+              <p>Outputs are automatically evaluated as <code>COUNT</code>, coordinate-level <code>CLICK</code>, or click-count <code>SUBMIT</code> actions.</p>
             </div>
           </div>
           <div class="highlight-item">
             <span class="highlight-icon"><i class="fa-solid fa-magnifying-glass-chart"></i></span>
             <div>
-              <h3>Diagnostic controls</h3>
-              <p>Global-click and matched local-count bridges separate perception, coordinate grounding, and context rebinding.</p>
+              <h3>Diagnostic bridge controls</h3>
+              <p>Global-click and matched local count-to-click controls separate output validity, coordinate grounding, and context-conditioned action.</p>
             </div>
           </div>
         </div>
@@ -159,14 +165,7 @@
       <div class="page-shell text-shell">
         <h2 class="section-title">Abstract</h2>
         <p>
-          Multimodal large language models are increasingly expected to move beyond visual understanding and act on visual information.
-          However, existing evaluations make it difficult to determine whether an action failure arises from incorrect perception,
-          inaccurate coordinate grounding, or an inability to adapt a correct scene interpretation to the current task context.
-          ROSE provides a controlled test of this transition by coupling counting and coordinate-action tasks over the same fine-grained
-          visual scenes. Across nine recent multimodal models, performance drops by as much as 44.5 percentage points from
-          counting-oriented tasks to region-conditioned action. The gap persists even when evaluation is restricted to scenes or regions
-          that the same model has already counted correctly. Further controls show that coordinate grounding explains only part of the
-          loss; a central bottleneck lies in preserving and rebinding visual evidence as task context changes.
+          Multimodal large language models (MLLMs) are increasingly expected to act on visual information, yet the same scene may require different actions under different task contexts. How reliably can a model turn the same visual evidence into the action required by the current context? To answer this question, we introduce <strong>ROSE</strong> (Reference-conditioned Oddity and Symbolic Execution), a controlled benchmark that holds the visual scene fixed while varying region constraints and required symbolic outputs. Through coupled counting and coordinate-action tasks, ROSE tests whether models can infer an implicit majority reference and act on the resulting fine-grained visual evidence under changing contexts. Across nine recent MLLMs, performance drops by as much as <strong>44.5 percentage points</strong> from counting-oriented tasks to region-conditioned action, despite <strong>98.8%</strong> human performance. The gap persists on paired scenes and regions for which the same model returns the correct count, while global-click and matched local controls show that coordinate grounding explains only part of the loss, revealing a distinct, model-dependent bottleneck in turning shared visual evidence into context-specific actions.
         </p>
       </div>
     </section>
@@ -175,35 +174,35 @@
       <div class="page-shell">
         <h2 class="section-title">Benchmark Design</h2>
         <p class="section-intro">
-          The target identity is never named in text. Each model must infer the majority visual reference,
-          locate the exception cells, apply the current region condition, and produce the required formal answer.
+          ROSE is designed as a controlled readout problem: the underlying visual evidence stays fixed, while the relevant region and required symbolic output change.
+          The target identity is never named explicitly; it must be inferred from the scene-internal majority relation.
         </p>
 
         <div class="source-grid">
           <article class="source-card">
             <div class="source-symbol">字</div>
-            <h3>Chinese Glyph</h3>
-            <p>Fine-grained glyph distinctions among visually confusable Chinese characters.</p>
+            <h3>ChineseGlyph</h3>
+            <p>Distinct but visually confusable Chinese characters rendered with the same verified font.</p>
           </article>
           <article class="source-card">
             <div class="source-symbol">🎨</div>
-            <h3>Emoji Style</h3>
-            <p>Style-level variation while preserving the same emoji identity.</p>
+            <h3>EmojiStyle</h3>
+            <p>The same emoji identity shown with different provider-specific rendering styles.</p>
           </article>
           <article class="source-card">
             <div class="source-symbol">🙂</div>
-            <h3>Emoji Content</h3>
-            <p>Visually related emoji identities selected with category and similarity controls.</p>
+            <h3>EmojiContent</h3>
+            <p>Visually related emoji identities rendered in a shared style.</p>
           </article>
           <article class="source-card">
             <div class="source-symbol pixel-symbol">▦</div>
-            <h3>Pixel Edit</h3>
-            <p>Manually verified local edits within the same pixel-art image.</p>
+            <h3>PixelEdit</h3>
+            <p>A localized modification introduced into the same pixel-art source asset.</p>
           </article>
           <article class="source-card">
             <div class="source-symbol pixel-symbol">▧</div>
-            <h3>Pixel Content</h3>
-            <p>Visually related but semantically different pixel-art contents.</p>
+            <h3>PixelContent</h3>
+            <p>Related but distinct pixel-art assets with matched visual structure or theme.</p>
           </article>
         </div>
 
@@ -213,8 +212,8 @@
               <tr>
                 <th>Template</th>
                 <th>Task</th>
-                <th>Context</th>
-                <th>Output</th>
+                <th>Region / context</th>
+                <th>Required output</th>
               </tr>
             </thead>
             <tbody>
@@ -227,25 +226,25 @@
               <tr>
                 <td><code>T2</code></td>
                 <td>Local counting</td>
-                <td>Numeric region</td>
+                <td>Numeric row, column, or rectangle</td>
                 <td><code>COUNT(n)</code></td>
               </tr>
               <tr>
                 <td><code>T3</code></td>
                 <td>Local clicking</td>
-                <td>Numeric region</td>
+                <td>Numeric row, column, or rectangle</td>
                 <td><code>CLICK(...); DONE</code></td>
               </tr>
               <tr>
                 <td><code>T4</code></td>
                 <td>Visual-region clicking</td>
-                <td>Highlighted region</td>
+                <td>Highlighted region in the image</td>
                 <td><code>CLICK(...); DONE</code></td>
               </tr>
               <tr>
                 <td><code>T5</code></td>
-                <td>Exclusion action</td>
-                <td>Outside an excluded region</td>
+                <td>Exclusion clicking with count submission</td>
+                <td>Outside a specified excluded region</td>
                 <td><code>CLICK(...); SUBMIT(n)</code></td>
               </tr>
             </tbody>
@@ -253,7 +252,7 @@
         </div>
 
         <div class="protocol-box">
-          <strong>Unified formal protocol</strong>
+          <strong>Formal protocol</strong>
           <code>COUNT(n)</code>
           <code>CLICK(Rr,Cc); ...; DONE</code>
           <code>CLICK(Rr,Cc); ...; SUBMIT(n)</code>
@@ -261,26 +260,53 @@
       </div>
     </section>
 
-    <section class="section" id="results">
+    <section class="section" id="dataset">
+      <div class="page-shell">
+        <h2 class="section-title">Dataset Composition</h2>
+        <p class="section-intro">
+          ROSE v0.1 uses an official scene-level split. All task variants and both renderings derived from the same scene are assigned to the same split.
+          Dev and Test below report task-instance counts.
+        </p>
+
+        <div class="task-table-wrap dataset-table-wrap">
+          <table class="project-table">
+            <thead>
+              <tr>
+                <th>Subset</th>
+                <th>Controlled visual source</th>
+                <th>Scenes</th>
+                <th>Dev</th>
+                <th>Test</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>ChineseGlyph</td><td>Confusable characters, same verified font</td><td>412</td><td>555</td><td>1,505</td></tr>
+              <tr><td>EmojiStyle</td><td>Same emoji, different rendering providers</td><td>300</td><td>395</td><td>1,105</td></tr>
+              <tr><td>EmojiContent</td><td>Related emoji identities, shared rendering style</td><td>300</td><td>395</td><td>1,105</td></tr>
+              <tr><td>PixelEdit</td><td>Same pixel-art asset, localized edit</td><td>300</td><td>395</td><td>1,105</td></tr>
+              <tr><td>PixelContent</td><td>Related but distinct pixel-art assets</td><td>200</td><td>260</td><td>740</td></tr>
+              <tr class="human-row"><td>Total</td><td>Five visual sources and five coupled task templates</td><td>1,512</td><td>2,000</td><td>5,560</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="section alt-section" id="results">
       <div class="page-shell">
         <h2 class="section-title">Main Results</h2>
         <p class="section-intro">
-          ROSE is highly solvable by humans, but current models show a clear and model-dependent
-          gap between counting-oriented perception and exact region-conditioned action.
+          ROSE is highly solvable by humans, but current MLLMs exhibit a clear and model-dependent gap between counting-oriented readouts and exact region-conditioned actions.
         </p>
 
         <div class="result-layout">
           <div class="result-copy">
-            <h3>Overall performance</h3>
+            <h3>Counting does not automatically become action.</h3>
             <p>
-              GPT-5.5 achieves the strongest model result at <strong>92.2% PASS</strong>,
-              followed by Gemini-3.1-Pro at <strong>79.4%</strong>. The remaining evaluated models
-              range from <strong>14.3%</strong> to <strong>50.3%</strong>.
+              GPT-5.5 achieves the strongest model result with <strong>92.2% Avg. PASS</strong>, followed by Gemini-3.1-Pro with <strong>79.4%</strong>. The remaining models range from <strong>14.3%</strong> to <strong>50.3%</strong>.
             </p>
             <p>
-              High grammar validity does not guarantee success: Qwen3.6-Plus reaches
-              <strong>99.9% VALID</strong> but only <strong>50.3% PASS</strong>, showing that many
-              failures arise after a formally valid action has already been produced.
+              The dominant signal is not only model ranking, but the gap from compact counting readouts to context-sensitive coordinate actions. For example, Qwen3.6-Plus reaches <strong>80.3%</strong> on global counting but <strong>37.7%</strong> on visual-region clicking.
             </p>
           </div>
 
@@ -289,32 +315,63 @@
               <thead>
                 <tr>
                   <th>Model</th>
-                  <th>PASS</th>
-                  <th>SOFT</th>
+                  <th>Avg. PASS</th>
                   <th>VALID</th>
                 </tr>
               </thead>
               <tbody>
-                <tr><td>Qwen3.6-Plus</td><td>50.3</td><td>67.7</td><td>99.9</td></tr>
-                <tr><td>GLM-5V-Turbo</td><td>33.8</td><td>54.5</td><td>99.5</td></tr>
-                <tr><td>Gemini-3.1-Pro</td><td>79.4</td><td>82.0</td><td>93.4</td></tr>
-                <tr><td>GPT-5.5</td><td>92.2</td><td>94.6</td><td>100.0</td></tr>
-                <tr class="human-row"><td>Human</td><td>98.8</td><td>99.7</td><td>—</td></tr>
+                <tr><td>Qwen3.6-Plus</td><td>50.3</td><td>99.9</td></tr>
+                <tr><td>GLM-5V-Turbo</td><td>33.8</td><td>99.5</td></tr>
+                <tr><td>Gemini-3.1-Pro</td><td>79.4</td><td>93.4</td></tr>
+                <tr><td>GPT-5.5</td><td>92.2</td><td>100.0</td></tr>
+                <tr class="human-row"><td>Human</td><td>98.8</td><td>—</td></tr>
               </tbody>
             </table>
           </div>
         </div>
 
+        <div class="task-table-wrap full-result-wrap">
+          <table class="project-table compact-table full-result-table">
+            <thead>
+              <tr>
+                <th>Model</th>
+                <th>G-Cnt</th>
+                <th>L-Cnt</th>
+                <th>L-Clk</th>
+                <th>V-Clk</th>
+                <th>Excl-CS</th>
+                <th>Glyph</th>
+                <th>Emoji</th>
+                <th>Pixel</th>
+                <th>Avg.</th>
+                <th>VALID</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Qwen3-VL-Flash</td><td>47.7</td><td>21.6</td><td>1.3</td><td>0.5</td><td>0.7</td><td>15.0</td><td>14.9</td><td>13.6</td><td>14.3</td><td>86.6</td></tr>
+              <tr><td>Qwen3-VL-Plus</td><td>66.4</td><td>30.6</td><td>4.1</td><td>5.7</td><td>3.2</td><td>21.8</td><td>24.0</td><td>20.1</td><td>22.0</td><td>95.5</td></tr>
+              <tr><td>Qwen3.6-Plus</td><td>80.3</td><td>65.3</td><td>39.5</td><td>37.7</td><td>28.9</td><td>48.4</td><td>48.0</td><td>53.6</td><td>50.3</td><td>99.9</td></tr>
+              <tr><td>Claude-Sonnet-4.6</td><td>62.1</td><td>21.6</td><td>9.8</td><td>20.6</td><td>4.5</td><td>28.5</td><td>25.0</td><td>20.1</td><td>23.7</td><td>61.3</td></tr>
+              <tr><td>Claude-Opus-4.8</td><td>64.0</td><td>21.2</td><td>9.8</td><td>21.4</td><td>4.9</td><td>30.2</td><td>25.2</td><td>20.4</td><td>24.3</td><td>62.7</td></tr>
+              <tr><td>GLM-4.6V</td><td>60.7</td><td>30.8</td><td>5.0</td><td>4.5</td><td>2.5</td><td>19.1</td><td>22.4</td><td>19.9</td><td>20.7</td><td>98.8</td></tr>
+              <tr><td>GLM-5V-Turbo</td><td>64.2</td><td>56.9</td><td>20.6</td><td>21.4</td><td>6.1</td><td>37.5</td><td>34.5</td><td>31.3</td><td>33.8</td><td>99.5</td></tr>
+              <tr><td>Gemini-3.1-Pro</td><td>92.8</td><td>93.9</td><td>75.4</td><td>64.2</td><td>70.4</td><td>67.6</td><td>84.5</td><td>80.1</td><td>79.4</td><td>93.4</td></tr>
+              <tr><td>GPT-5.5</td><td>93.8</td><td>97.0</td><td>93.6</td><td>84.3</td><td>92.5</td><td>87.4</td><td>94.8</td><td>92.2</td><td>92.2</td><td>100.0</td></tr>
+              <tr class="human-row"><td>Human</td><td>99.9</td><td>100.0</td><td>98.8</td><td>97.7</td><td>95.8</td><td>99.8</td><td>97.5</td><td>99.8</td><td>98.8</td><td>—</td></tr>
+            </tbody>
+          </table>
+        </div>
+
         <figure class="main-figure result-figure">
           <img src="static/images/perception_action_gap.png" alt="Perception-to-action gap in ROSE" loading="lazy">
           <figcaption>
-            Most models degrade substantially from counting to action, and the gap remains after conditioning on correct global counting.
+            Counting Avg. averages G-Cnt and L-Cnt, while Action Avg. averages L-Clk, V-Clk, and Excl-CS. The gap remains after conditioning on correct global counting.
           </figcaption>
         </figure>
       </div>
     </section>
 
-    <section class="section alt-section" id="controls">
+    <section class="section" id="controls">
       <div class="page-shell">
         <h2 class="section-title">Diagnostic Controls</h2>
 
@@ -323,7 +380,7 @@
             <span class="control-label">Global-click bridge</span>
             <h3>Does the gap reduce to coordinate grounding?</h3>
             <p>
-              The bridge inserts global coordinate localization between global counting and region-conditioned clicking:
+              This bridge inserts full-grid coordinate localization between global counting and visual-region clicking.
             </p>
             <div class="flow-line">
               <span>G-Cnt</span><i class="fa-solid fa-arrow-right"></i>
@@ -341,73 +398,73 @@
               </tbody>
             </table>
             <p class="control-conclusion">
-              Coordinate grounding explains part of the loss, but the larger drop often appears only after region context is introduced.
+              Coordinate grounding explains part of the loss, but the larger degradation often appears only after a region context is introduced.
             </p>
           </article>
 
           <article class="control-card">
             <span class="control-label">Matched local count-to-click</span>
-            <h3>Does correct local counting transfer to exact action?</h3>
+            <h3>Does correct regional counting support exact action?</h3>
             <p>
-              Each matched pair uses the same image, numeric region, and target set; only the required output changes.
+              Each matched pair uses the same image, numeric region, and regional target set; only the output operation changes from <code>COUNT</code> to <code>CLICK</code>.
             </p>
             <table class="project-table mini-table">
               <thead>
-                <tr><th>Model</th><th>mL-Cnt</th><th>L-Clk | mL-Cnt ✓</th><th>Fail</th></tr>
+                <tr><th>Model</th><th>mL-Cnt</th><th>L-Clk</th><th>L-Clk†</th><th>Fail†</th></tr>
               </thead>
               <tbody>
-                <tr><td>Qwen3.6-Plus</td><td>63.2</td><td>52.7</td><td>47.3</td></tr>
-                <tr><td>GPT-5.5</td><td>71.6</td><td>95.5</td><td>4.5</td></tr>
+                <tr><td>Qwen3.6-Plus</td><td>63.2</td><td>39.5</td><td>52.7</td><td>47.3</td></tr>
+                <tr><td>GPT-5.5</td><td>96.7</td><td>93.6</td><td>95.8</td><td>4.2</td></tr>
               </tbody>
             </table>
             <p class="control-conclusion">
-              Correct cardinality is not uniformly stable under action: the transfer failure remains severe for Qwen3.6-Plus but is largely closed by GPT-5.5.
+              Correct cardinality is highly predictive of exact action for GPT-5.5, but not for Qwen3.6-Plus, especially when the required action is empty.
             </p>
           </article>
         </div>
       </div>
     </section>
 
-    <section class="section" id="failures">
+    <section class="section alt-section" id="failures">
       <div class="page-shell">
         <h2 class="section-title">Qualitative Failure Cases</h2>
         <p class="section-intro">
-          The model may solve global counting correctly while failing to rebind the same interpretation to the current action context.
+          Even when the independently queried global-count response is correct, the model may fail to rebind the same visual evidence to the current action context.
         </p>
 
         <figure class="main-figure">
           <img src="static/images/qualitative_failures.png" alt="Representative ROSE failure cases" loading="lazy">
           <figcaption>
-            Count anchoring, region ignoring, failure to abstain, one-cell shifts, and action-set expansion.
+            Representative failures include count anchoring, region ignored, and failure to abstain when no valid target remains.
           </figcaption>
         </figure>
       </div>
     </section>
 
-    <section class="section alt-section" id="resources">
+    <section class="section" id="resources">
       <div class="page-shell">
         <h2 class="section-title">Resources</h2>
         <div class="resource-grid">
+          <a class="resource-card" href="https://arxiv.org/abs/2606.19965" target="_blank" rel="noopener">
+            <i class="fa-solid fa-file-lines"></i>
+            <h3>Paper</h3>
+            <p>arXiv:2606.19965. Full benchmark design, experiments, controls, and qualitative analysis.</p>
+          </a>
           <a class="resource-card" href="https://github.com/xbdxwyh/ROSE-v0.1" target="_blank" rel="noopener">
             <i class="fa-brands fa-github"></i>
-            <h3>Code &amp; Evaluator</h3>
-            <p>Reference Qwen runner, strict evaluator, and diagnostic analysis scripts.</p>
+            <h3>Evaluation Code</h3>
+            <p>Reference runner, strict evaluator, bridge analyses, and reproducibility scripts.</p>
           </a>
           <a class="resource-card" href="https://huggingface.co/datasets/sysuwyh357/ROSE-v0.1" target="_blank" rel="noopener">
             <span class="emoji-icon">🤗</span>
             <h3>Dataset</h3>
-            <p>Main ROSE metadata, rendered images, and official scene-level splits.</p>
-          </a>
-          <a class="resource-card" href="https://arxiv.org/abs/XXXX.XXXXX" target="_blank" rel="noopener">
-            <i class="fa-solid fa-file-lines"></i>
-            <h3>Paper</h3>
-            <p>Full benchmark design, experiments, controls, and qualitative analysis.</p>
+            <p>Main ROSE metadata, rendered images, official scene-level splits, and derived bridge metadata.</p>
           </a>
         </div>
       </div>
     </section>
 
-    <section class="section" id="bibtex">
+    <section class="section alt-section" id="bibtex">
       <div class="page-shell text-shell">
         <h2 class="section-title">BibTeX</h2>
         <div class="bibtex-box">
@@ -415,12 +472,14 @@
             <i class="fa-regular fa-copy"></i>
             <span>Copy</span>
           </button>
-          <!-- TODO: Replace author list and arXiv identifier after release. -->
-          <pre id="bibtex-code"><code>@article{rose2026,
-  title   = {ROSE: Benchmarking the Perception-to-Action Gap in Multimodal Models},
-  author  = {Anonymous Authors},
-  journal = {arXiv preprint arXiv:XXXX.XXXXX},
-  year    = {2026}
+          <pre id="bibtex-code"><code>@misc{wang2026rose,
+  title={ROSE: Benchmarking the Perception-to-Action Gap in Multimodal Models},
+  author={Yihao Wang and Zijian He and Jie Ren and Keze Wang},
+  year={2026},
+  eprint={2606.19965},
+  archivePrefix={arXiv},
+  primaryClass={cs.CV},
+  url={https://arxiv.org/abs/2606.19965}
 }</code></pre>
         </div>
       </div>
@@ -430,14 +489,14 @@
   <footer class="footer">
     <div class="page-shell">
       <p>
-        This project page follows the classic academic project-page style and is hosted with GitHub Pages.
+        ROSE: Reference-conditioned Oddity and Symbolic Execution · Preprint, June 2026
       </p>
       <p class="footer-links">
-        <a href="https://github.com/xbdxwyh/ROSE-v0.1">Code</a>
+        <a href="https://arxiv.org/abs/2606.19965">Paper</a>
+        <span>·</span>
+        <a href="https://github.com/xbdxwyh/ROSE-v0.1">Evaluation Code</a>
         <span>·</span>
         <a href="https://huggingface.co/datasets/sysuwyh357/ROSE-v0.1">Dataset</a>
-        <span>·</span>
-        <a href="https://arxiv.org/abs/XXXX.XXXXX">Paper</a>
       </p>
     </div>
   </footer>

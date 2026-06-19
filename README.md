@@ -4,14 +4,15 @@
 
 ### Reference-conditioned Oddity and Symbolic Execution
 
-**Can a multimodal model preserve a correct visual interpretation and turn it into the right action when the task context changes?**
+**Can a multimodal model turn the same visual evidence into the exact action required by the current task context?**
 
-[![Paper](https://img.shields.io/badge/arXiv-coming%20soon-b31b1b.svg)](https://arxiv.org/abs/XXXX.XXXXX)
+[![Project Page](https://img.shields.io/badge/Project-Page-6f42c1.svg)](https://xbdxwyh.github.io/ROSE-v0.1/)
+[![arXiv](https://img.shields.io/badge/arXiv-2606.19965-b31b1b.svg)](https://arxiv.org/abs/2606.19965)
 [![Dataset](https://img.shields.io/badge/%F0%9F%A4%97%20Dataset-ROSE--v0.1-yellow)](https://huggingface.co/datasets/sysuwyh357/ROSE-v0.1)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB.svg)](https://www.python.org/)
 
-<!-- Replace the arXiv placeholder once the paper is public. -->
+**Yihao Wang, Zijian He, Jie Ren, Keze Wang**
 
 </div>
 
@@ -19,62 +20,60 @@
   <img src="assets/figures/rose_overview.png" width="100%" alt="ROSE benchmark overview">
 </p>
 
-> [!NOTE]
-> The Hugging Face dataset is currently private during release preparation.  
-> Authenticate with `hf auth login` before running the examples below. This note can be removed once the dataset is public.
-
 ---
 
 ## Overview
 
-Multimodal large language models are increasingly expected not only to **recognize** visual content, but also to **act** on it. A model may correctly identify or count visually unusual elements while still failing to select the correct cells, respect a region constraint, abstain when no action is needed, or produce an exact symbolic response.
+Multimodal large language models (MLLMs) are increasingly expected to act on visual information, yet the same scene may require different actions under different task contexts. ROSE asks a focused question: **can a model convert a visual interpretation into the exact symbolic action required by the current context while the underlying scene remains unchanged?**
 
-ROSE isolates this transition in a controlled setting. Each scene contains a grid of visually similar elements with a small number of exceptions. The target identity is never named explicitly: the model must infer the majority reference, identify the exception set, bind that set to the current task context, and return an exact formal action.
+ROSE, short for **Reference-conditioned Oddity and Symbolic Execution**, is a controlled benchmark for context-conditioned visual action. Each scene presents a grid of visually similar elements without an explicit target name. The model must infer the scene-internal majority reference, identify sparse exception cells, and then read out the same visual evidence under different task contexts.
 
-The same visual scene is reused across multiple coupled tasks, allowing ROSE to measure whether a visual interpretation survives changes in:
+The benchmark holds the visual scene fixed while varying:
 
-- the relevant region;
+- the permitted region;
 - the required output operation;
-- the need to count, click, exclude, or abstain;
-- the requirement for exact click-count consistency.
+- whether the model should count, click, exclude, or abstain;
+- whether the returned coordinates and submitted count are mutually consistent.
 
-ROSE contains **1,512 scenes**, **3,024 images**, and **7,560 task instances** across five fine-grained visual sources. The official split contains **2,000 development** and **5,560 test** instances, with all tasks from the same scene assigned to the same split.
+This design supports controlled within-scene comparisons between compact counting readouts and exact coordinate-level actions.
 
 ---
 
-## Why ROSE?
+## Highlights
 
-| Property | What it enables |
-|---|---|
-| **Scene-coupled evaluation** | Compare perception and action on the same underlying visual evidence. |
-| **Implicit visual reference** | Prevent shortcutting through an explicitly named target class. |
-| **Context-conditioned regions** | Test whether models correctly filter the inferred exception set. |
-| **Exact symbolic actions** | Separate plausible explanations from executable decisions. |
-| **Diagnostic controls** | Distinguish perception, coordinate grounding, region binding, and protocol failures. |
+- **Scene-coupled evaluation:** multiple tasks are derived from the same visual scene, enabling controlled comparisons between perception-oriented and action-oriented behavior.
+- **Implicit visual reference:** the target class is not named in text; the model must infer what is normal and what stands out from the image itself.
+- **Context-conditioned action:** numeric regions, visual regions, and exclusion constraints change which inferred exception cells are actionable.
+- **Exact symbolic protocol:** answers are automatically scored through `COUNT`, `CLICK`, `DONE`, and `SUBMIT` outputs.
+- **Diagnostic controls:** global-click and matched local count-to-click bridges separate output validity, coordinate localization, and context-conditioned selection.
 
 ---
 
 ## Benchmark Design
 
-### Five visual sources
+### Visual sources
 
-| Subset | Visual variation | Description |
+ROSE v0.1 contains five controlled visual sources. Each source provides majority/exception pairs that are fine-grained, human-visible, and rendered under matched conditions.
+
+| Subset | Controlled visual source | Description |
 |---|---|---|
-| `ROSE-ChineseGlyph` | Glyph shape | Visually confusable Chinese characters rendered with a verified font pool. |
-| `ROSE-EmojiStyle` | Rendering style | The same emoji identity shown in different visual styles. |
-| `ROSE-EmojiContent` | Emoji identity | Visually related emoji contents selected with similarity and category controls. |
-| `ROSE-PixelEdit` | Local pixel edit | Manually verified local edits within the same pixel-art image. |
-| `ROSE-PixelContent` | Pixel-art content | Visually related but semantically different pixel-art assets. |
+| `ROSE-ChineseGlyph` | Confusable characters, same verified font | Distinct but visually confusable Chinese characters rendered under a verified font pool. |
+| `ROSE-EmojiStyle` | Same emoji, different rendering providers | The semantic emoji identity is fixed while provider-specific rendering style changes. |
+| `ROSE-EmojiContent` | Related emoji identities, shared rendering style | Visually related emoji contents are rendered in a shared style. |
+| `ROSE-PixelEdit` | Same pixel-art asset, localized edit | A localized modification is introduced into the same source image. |
+| `ROSE-PixelContent` | Related but distinct pixel-art assets | Two visually related but distinct pixel-art assets are paired. |
 
-### Five coupled task templates
+### Coupled task templates
 
-| Template | Task | Region/context | Required output |
+Each scene produces five coupled tasks. T1 and T2 provide counting-oriented probes, while T3--T5 test increasingly explicit context-sensitive actions.
+
+| Template | Name | Context | Required output |
 |---|---|---|---|
-| `T1_COUNT_GLOBAL` | Global counting | Whole grid | `COUNT(n)` |
-| `T2_COUNT_LOCAL_NUMERIC` | Local counting | Row range, column range, or rectangle | `COUNT(n)` |
-| `T3_CLICK_LOCAL_NUMERIC` | Local clicking | Numerically specified region | `CLICK(...); DONE` |
-| `T4_CLICK_VISUAL_REGION` | Visual-region clicking | Highlighted region in the image | `CLICK(...); DONE` |
-| `T5_CLICK_COUNT_EXCLUSION` | Exclusion action | Outside a text-specified excluded region | `CLICK(...); SUBMIT(n)` |
+| `T1_COUNT_GLOBAL` | Global counting (`G-Cnt`) | Whole grid | `COUNT(n)` |
+| `T2_COUNT_LOCAL_NUMERIC` | Local counting (`L-Cnt`) | Numeric row/column/rectangle region | `COUNT(n)` |
+| `T3_CLICK_LOCAL_NUMERIC` | Local clicking (`L-Clk`) | Numeric row/column/rectangle region | `CLICK(...); DONE` |
+| `T4_CLICK_VISUAL_REGION` | Visual-region clicking (`V-Clk`) | Highlighted region in the image | `CLICK(...); DONE` |
+| `T5_CLICK_COUNT_EXCLUSION` | Exclusion clicking with count submission (`Excl-CS`) | Outside a text-specified excluded region | `CLICK(...); SUBMIT(n)` |
 
 ### Output grammar
 
@@ -86,11 +85,15 @@ CLICK(Rr,Cc); ...; DONE
 CLICK(Rr,Cc); ...; SUBMIT(n)
 ```
 
-Rows and columns are 1-indexed. Click order is ignored, but the predicted coordinate set must match exactly. Invalid coordinates, duplicate clicks, malformed outputs, and inconsistent click-count submissions are strict failures.
+Rows and columns are 1-indexed. Click order is ignored, but the predicted coordinate set must match the ground-truth set exactly. Malformed outputs, out-of-grid coordinates, duplicate clicks, region-rule violations, and inconsistent click-count submissions are diagnosed by the evaluator.
 
 ---
 
 ## Dataset Statistics
+
+ROSE v0.1 contains **1,512 scenes**, **3,024 rendered images**, and **7,560 task instances**. Each scene produces five task instances and two renderings: an uncued base image and a cue-augmented image used for visual-region clicking.
+
+The split is performed at the scene level, so all task variants and renderings from the same scene remain in the same split.
 
 | Subset | Scenes | Images | Dev tasks | Test tasks |
 |---|---:|---:|---:|---:|
@@ -103,47 +106,36 @@ Rows and columns are 1-indexed. Click order is ignored, but the predicted coordi
 
 ---
 
-## Key Results
+## Main Results
 
-ROSE is highly solvable by humans but remains challenging for current multimodal models. Human performance reaches **98.8% average PASS**, while model performance ranges from **14.3% to 92.2%**.
+ROSE is highly solvable by humans but remains challenging for current MLLMs. A trained human annotator reaches **98.8% average PASS**, while the evaluated models range from **14.3%** to **92.2%** average PASS.
 
-### Main benchmark results
+### Primary ROSE test results
 
-| Model | Avg. PASS | Avg. SOFT | VALID |
-|---|---:|---:|---:|
-| Qwen3-VL-Flash | 14.3 | 31.0 | 86.6 |
-| Qwen3-VL-Plus | 22.0 | 40.5 | 95.5 |
-| Qwen3.6-Plus | 50.3 | 67.7 | 99.9 |
-| Claude-Sonnet-4.6 | 23.7 | 36.9 | 61.3 |
-| Claude-Opus-4.8 | 24.3 | 37.4 | 62.7 |
-| GLM-4.6V | 20.7 | 41.3 | 98.8 |
-| GLM-5V-Turbo | 33.8 | 54.5 | 99.5 |
-| Gemini-3.1-Pro | 79.4 | 82.0 | 93.4 |
-| GPT-5.5 | 92.2 | 94.6 | 100.0 |
-| Human | 98.8 | 99.7 | - |
+| Model | G-Cnt | L-Cnt | L-Clk | V-Clk | Excl-CS | Glyph | Emoji | Pixel | Avg. | VALID |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| Qwen3-VL-Flash | 47.7 | 21.6 | 1.3 | 0.5 | 0.7 | 15.0 | 14.9 | 13.6 | 14.3 | 86.6 |
+| Qwen3-VL-Plus | 66.4 | 30.6 | 4.1 | 5.7 | 3.2 | 21.8 | 24.0 | 20.1 | 22.0 | 95.5 |
+| Qwen3.6-Plus | 80.3 | 65.3 | 39.5 | 37.7 | 28.9 | 48.4 | 48.0 | 53.6 | 50.3 | 99.9 |
+| Claude-Sonnet-4.6 | 62.1 | 21.6 | 9.8 | 20.6 | 4.5 | 28.5 | 25.0 | 20.1 | 23.7 | 61.3 |
+| Claude-Opus-4.8 | 64.0 | 21.2 | 9.8 | 21.4 | 4.9 | 30.2 | 25.2 | 20.4 | 24.3 | 62.7 |
+| GLM-4.6V | 60.7 | 30.8 | 5.0 | 4.5 | 2.5 | 19.1 | 22.4 | 19.9 | 20.7 | 98.8 |
+| GLM-5V-Turbo | 64.2 | 56.9 | 20.6 | 21.4 | 6.1 | 37.5 | 34.5 | 31.3 | 33.8 | 99.5 |
+| Gemini-3.1-Pro | 92.8 | 93.9 | 75.4 | 64.2 | 70.4 | 67.6 | 84.5 | 80.1 | 79.4 | 93.4 |
+| GPT-5.5 | 93.8 | 97.0 | 93.6 | 84.3 | 92.5 | 87.4 | 94.8 | 92.2 | 92.2 | 100.0 |
+| Human | 99.9 | 100.0 | 98.8 | 97.7 | 95.8 | 99.8 | 97.5 | 99.8 | 98.8 | - |
 
-`PASS` requires exact task success. `SOFT` gives partial credit for approximate count or click-set quality. `VALID` is the grammar-valid output rate.
+`Glyph` denotes `ROSE-ChineseGlyph`; `Emoji` averages `ROSE-EmojiStyle` and `ROSE-EmojiContent`; `Pixel` averages `ROSE-PixelEdit` and `ROSE-PixelContent`. `Avg.` is the equal macro average over the five original visual subsets.
 
 ### Perception-to-action gap
 
-<p align="center">
-  <img src="assets/figures/perception_action_gap.png" width="100%" alt="Perception-to-action gap in ROSE">
-</p>
+Across nine recent MLLMs, ROSE reveals a strongly model-dependent counting-to-action gap. Counting-oriented tasks remain substantially easier than region-conditioned coordinate actions for many models. The largest observed drop is **44.5 percentage points** from Counting Avg. to Action Avg.
 
-Across current models, counting-oriented performance is consistently stronger than region-conditioned action. The largest observed drop is **44.5 percentage points**. The gap remains even when action tasks are evaluated only on scenes where the same model already solves global counting correctly.
+The gap persists even under paired controls where the same model has already returned the correct count. This indicates that the bottleneck is not only detecting that some cells are visually different; many failures occur when the model must rebind the inferred exception set to the current region and express it as an exact action.
 
-Representative task-level results:
+### Global count-to-click bridge
 
-| Model | G-Cnt | L-Cnt | L-Clk | V-Clk | Excl-CS | C-F1 | R-OK |
-|---|---:|---:|---:|---:|---:|---:|---:|
-| Qwen3.6-Plus | 80.3 | 65.3 | 39.5 | 37.7 | 28.9 | 50.7 | 68.9 |
-| Gemini-3.1-Pro | 92.8 | 93.9 | 75.4 | 64.2 | 70.4 | 71.5 | 89.4 |
-| GPT-5.5 | 93.8 | 97.0 | 93.6 | 84.3 | 92.5 | 92.0 | 98.2 |
-| Human | 99.9 | 100.0 | 98.8 | 97.7 | 95.8 | 99.5 | 99.9 |
-
-### The gap is not only coordinate grounding
-
-The global-click bridge inserts a task between global counting and region-conditioned clicking:
+The global-click bridge inserts a full-grid coordinate action between global counting and visual-region clicking:
 
 ```text
 G-Cnt  ->  G-Clk  ->  V-Clk
@@ -151,38 +143,30 @@ count      global      region-conditioned
            coordinates coordinates
 ```
 
-| Model | G-Cnt | G-Clk | G-Clk given G-Cnt correct | V-Clk | Card-Exact | Loc.-Exact given Card |
-|---|---:|---:|---:|---:|---:|---:|
-| Qwen3.6-Plus | 80.3 | 67.1 | 73.1 | 37.7 | 86.0 | 78.0 |
-| Gemini-3.1-Pro | 92.8 | 86.5 | 90.5 | 64.2 | 91.2 | 94.8 |
-| GPT-5.5 | 93.8 | 91.8 | 96.1 | 84.3 | 94.9 | 96.7 |
+| Model | G-Cnt | G-Clk | G-Clk† | V-Clk | Card | Loc.\|Card | C-F1 | ΔC→G | ΔG→V |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| Qwen3.6-Plus | 80.3 | 67.1 | 73.1 | 37.7 | 86.0 | 78.0 | 76.4 | -13.2 | -29.4 |
+| Gemini-3.1-Pro | 92.8 | 86.5 | 90.5 | 64.2 | 91.2 | 94.8 | 89.7 | -6.3 | -22.3 |
+| GPT-5.5 | 93.8 | 91.8 | 96.1 | 84.3 | 94.9 | 96.7 | 95.4 | -2.0 | -7.5 |
 
-Coordinate grounding explains part of the loss, but the larger degradation often appears only after a region context is introduced.
+`G-Clk†` denotes global-click PASS restricted to scenes where global counting is correct. `Card` measures exact clicked-cardinality accuracy, and `Loc.|Card` measures exact coordinate localization conditioned on correct cardinality.
 
-### Correct local counting does not always transfer to exact action
+### Matched local count-to-click bridge
 
-The matched local-count bridge uses the **same image, same numeric region, and same target set** as the paired local-click task; only the output operation changes.
+The matched local bridge holds the **same image, same numeric region, and same regional target set** fixed, changing only the required output from `COUNT(n)` to coordinate-level `CLICK` actions.
 
-| Model | mL-Cnt | L-Clk | L-Clk given correct mL-Cnt | Transfer failure |
-|---|---:|---:|---:|---:|
-| Qwen3.6-Plus | 63.2 | 39.5 | 52.7 | 47.3 |
-| GPT-5.5 | 71.6 | 93.6 | 95.5 | 4.5 |
+| Model | Case | mL-Cnt | L-Clk | L-Clk† | Fail† |
+|---|---|---:|---:|---:|---:|
+| Qwen3.6-Plus | Overall | 63.2 | 39.5 | 52.7 | 47.3 |
+| Qwen3.6-Plus | Zero | 67.5 | 12.7 | 18.3 | 81.7 |
+| Qwen3.6-Plus | Partial | 55.8 | 47.3 | 67.7 | 32.3 |
+| Qwen3.6-Plus | All | 84.7 | 73.8 | 78.7 | 21.3 |
+| GPT-5.5 | Overall | 96.7 | 93.6 | 95.8 | 4.2 |
+| GPT-5.5 | Zero | 99.2 | 92.8 | 93.6 | 6.4 |
+| GPT-5.5 | Partial | 95.5 | 93.7 | 96.8 | 3.2 |
+| GPT-5.5 | All | 94.0 | 91.0 | 94.0 | 6.0 |
 
-For Qwen3.6-Plus, correct local cardinality frequently fails to survive the transition to exact action, especially in zero-target regions where the correct behavior is to abstain.
-
-### Qualitative failures
-
-<p align="center">
-  <img src="assets/figures/qualitative_failures.png" width="100%" alt="Representative ROSE failure cases">
-</p>
-
-ROSE exposes several recurring action-level failure modes:
-
-- **count anchoring**: preserving the global count after the task context changes;
-- **region ignored**: clicking globally odd cells outside the valid region;
-- **failure to abstain**: producing clicks when the correct action is empty;
-- **one-cell shift**: predicting the correct cardinality but incorrect coordinates;
-- **action-set expansion**: expanding a small target set into a larger local block.
+`L-Clk†` denotes local-click PASS conditioned on correct independently queried matched local counting, and `Fail† = 100 - L-Clk†`.
 
 ---
 
@@ -210,21 +194,21 @@ ROSE-v0.1/
             └── metadata_test.jsonl
 ```
 
-The two derived bridge tasks are released as **metadata only**. Their image paths point to the canonical images in the main Hugging Face dataset, so no image files are duplicated in this repository.
+The two derived bridge tasks are released as **metadata only**. Their image paths point to the canonical images in the main Hugging Face dataset, so image files are not duplicated in this repository.
 
 ---
 
 ## Installation
 
-```powershell
-git clone <YOUR_GITHUB_REPOSITORY_URL>
+```bash
+git clone https://github.com/xbdxwyh/ROSE-v0.1.git
 cd ROSE-v0.1
 pip install -r requirements.txt
 ```
 
-For private Hugging Face access during release preparation:
+If the Hugging Face dataset is gated or private during release, authenticate first:
 
-```powershell
+```bash
 hf auth login
 ```
 
@@ -340,7 +324,7 @@ python .\analysis\evaluate_global_click_bridge.py `
 </details>
 
 <details>
-<summary><b>Matched local-count bridge</b></summary>
+<summary><b>Matched local count-to-click bridge</b></summary>
 
 Run inference:
 
@@ -402,68 +386,38 @@ More details are available in [`analysis/README.md`](analysis/README.md).
 | `PASS` | Exact task success under the formal protocol. |
 | `SOFT` | Partial credit based on count error or click-set overlap. |
 | `VALID` | Grammar-valid output rate. |
-| `C-F1` | Strict click-set F1 over click-applicable tasks. |
-| `R-OK` | Fraction of click predictions with no region-rule violation. |
-| `Card-Exact` | Predicted click cardinality exactly matches the target cardinality. |
-| `Action Ret.` | Mean action PASS after conditioning on correct global counting. |
+| `C-F1` | Strict coordinate-set F1 over click-applicable tasks. |
+| `R-OK` | Region-compliance score over click-applicable tasks. |
+| `Card` | Exact clicked-cardinality accuracy. |
+| `Loc.|Card` | Exact localization conditioned on correct clicked cardinality. |
 
 ---
 
-## Figure Assets
+## Data, Code, and Paper
 
-The README expects the following exported paper figures:
-
-```text
-assets/
-└── figures/
-    ├── rose_overview.png
-    ├── perception_action_gap.png
-    └── qualitative_failures.png
-```
-
-Recommended exports:
-
-| README image | Paper source | Suggested format |
-|---|---|---|
-| `rose_overview.png` | Figure 1 | PNG or SVG, full width |
-| `perception_action_gap.png` | Figure 2 | PNG or SVG, full width |
-| `qualitative_failures.png` | Figure 8 | PNG, full width |
-
-Optional additional figures that work well in a project page:
-
-```text
-assets/figures/scene_consistency.png
-assets/figures/subset_template_heatmap.png
-assets/figures/difficulty_scaling.png
-```
-
-For GitHub rendering, use a white background and export raster figures at roughly 1,800-2,400 pixels wide.
-
----
-
-## Data Access
-
-- **Dataset:** [Hugging Face - sysuwyh357/ROSE-v0.1](https://huggingface.co/datasets/sysuwyh357/ROSE-v0.1)
-- **Paper:** [arXiv - coming soon](https://arxiv.org/abs/XXXX.XXXXX)
+- **Project page:** https://xbdxwyh.github.io/ROSE-v0.1/
+- **Paper:** https://arxiv.org/abs/2606.19965
+- **Dataset:** https://huggingface.co/datasets/sysuwyh357/ROSE-v0.1
 - **Derived metadata:** [`analysis/data/`](analysis/data/)
-- **Generated predictions and evaluations:** `demo/outputs/` (ignored by Git)
+- **Generated predictions and evaluations:** `demo/outputs/` is ignored by Git.
 
 ---
 
 ## Citation
 
-Please cite ROSE if you use the benchmark, evaluator, or derived analyses.
+Please cite ROSE if you use the benchmark, evaluator, derived analyses, or released data.
 
 ```bibtex
-@article{rose2026,
-  title   = {ROSE: Benchmarking the Perception-to-Action Gap in Multimodal Models},
-  author  = {TODO: Author List},
-  journal = {arXiv preprint arXiv:XXXX.XXXXX},
-  year    = {2026}
+@misc{wang2026rose,
+  title={ROSE: Benchmarking the Perception-to-Action Gap in Multimodal Models},
+  author={Yihao Wang and Zijian He and Jie Ren and Keze Wang},
+  year={2026},
+  eprint={2606.19965},
+  archivePrefix={arXiv},
+  primaryClass={cs.CV},
+  url={https://arxiv.org/abs/2606.19965}
 }
 ```
-
-<!-- Replace the author list and arXiv identifier after public release. -->
 
 ---
 
@@ -483,6 +437,6 @@ ROSE uses curated Chinese glyphs, public emoji renderings, and web-collected pix
 
 <div align="center">
 
-**ROSE turns visual recognition into an exact test of whether models can preserve, rebind, and execute what they see.**
+**ROSE evaluates whether models can preserve, rebind, and execute what they see.**
 
 </div>
